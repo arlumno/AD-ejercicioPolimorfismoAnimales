@@ -30,5 +30,5 @@ public class Gato extends Animal {
     protected String expresarse() {
         return "MIAU";
     }
-
+    
 }

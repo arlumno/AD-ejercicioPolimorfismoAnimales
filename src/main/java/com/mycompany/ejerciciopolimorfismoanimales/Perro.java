@@ -12,7 +12,6 @@ package com.mycompany.ejerciciopolimorfismoanimales;
 public class Perro extends Animal {
 
     private boolean raboLargo;
-    private String nombre;
 
     public Perro(String nombre) {
         this.nombre = nombre;

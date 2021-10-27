@@ -25,16 +25,24 @@ public class App {
         
         System.out.println(OperacionesAnimales.addGato(new Gato("mico")));
         System.out.println(OperacionesAnimales.addGato(new Gato("duque")));
-        System.out.println(OperacionesAnimales.addGato(new Gato("neko")));
-        System.out.println(OperacionesAnimales.addGato(new Gato("michu")));
-        System.out.println(OperacionesAnimales.addGato(new Gato("puka")));
-        System.out.println(OperacionesAnimales.addGato(new Gato("elgato6")));
-        String ruta = "src/main/java/com/mycompany/ejerciciopolimorfismoanimales/ficheros/animales.txt";
+//        System.out.println(OperacionesAnimales.addGato(new Gato("neko")));
+//        System.out.println(OperacionesAnimales.addGato(new Gato("michu")));
+//        System.out.println(OperacionesAnimales.addGato(new Gato("puka")));
+//        System.out.println(OperacionesAnimales.addGato(new Gato("elgato6")));
+        
+       // System.out.println(OperacionesAnimales.listar());
+        
+        System.out.println("Guardando animales....");
+        String ruta = "src/main/java/com/mycompany/ejerciciopolimorfismoanimales/ficheros/animales2.dat";
         OperacionesAnimales.guardarAnimalesADisco(ruta);
         
+        System.out.println("Cargando animales....");
         OperacionesAnimales.leerAnimalesDisco(ruta);
-        System.out.println(OperacionesAnimales.perros.toString());
-        System.out.println(OperacionesAnimales.gatos.toString());
+        
+        System.out.println("Listando animales:");
+        //System.out.println(OperacionesAnimales.perros[0].toString());
+        System.out.println(OperacionesAnimales.listar());
+        System.out.println("___");
     }
     
 }

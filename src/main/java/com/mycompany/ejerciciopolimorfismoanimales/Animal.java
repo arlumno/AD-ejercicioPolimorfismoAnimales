@@ -17,9 +17,19 @@ public abstract class Animal implements Serializable{
     public String getTipo() {
         return tipo;
     }
+    
+    public String getNombre() {
+        return nombre;
+    }
+    
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }
     protected abstract String expresarse();
+    
+    @Override
+    public String toString(){
+        return nombre + " es un " +  getTipo()  + " y hace " + expresarse();
+    }
     
 }

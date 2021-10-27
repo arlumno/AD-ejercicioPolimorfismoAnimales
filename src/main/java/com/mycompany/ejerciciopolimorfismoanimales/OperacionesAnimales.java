@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import javax.swing.JOptionPane;
 
 /**
@@ -21,10 +22,10 @@ public class OperacionesAnimales {
 
     public static final int limiteArray = 5;
     public static Perro[] perros = new Perro[limiteArray];
-    public static byte perrosCount = 0;
+    public static int perrosCount = 0;
 
     public static Gato[] gatos = new Gato[limiteArray];
-    public static byte gatosCount = 0;
+    public static int gatosCount = 0;
 
     public static Perro[] getPerros() {
         return perros;
@@ -64,82 +65,102 @@ public class OperacionesAnimales {
 
     public static void guardarAnimalesADisco(String rutaFichero) {
         File fichero = new File(rutaFichero);
-        ObjectOutputStream oos = null;
-
+        int cantidadObjectos = perrosCount + gatosCount;
+        ObjectOutputStream oos;
+        ObjectOutputStream oosT;
+        boolean cabeceraObjetos = true;
         try {
-            int i;
-            for (i = 0; i < perros.length; i++) {
-                if (i == 0) {
-                    oos = new ObjectOutputStream(new FileOutputStream(fichero, true)) {
-                        @Override
-                        protected void writeStreamHeader() {
-                        }
-                    };
-                } else {
-                    oos = new ObjectOutputStream(new FileOutputStream(fichero));
+            //añadir cantidad objectos
+            FileOutputStream fos = new FileOutputStream(fichero);
+            oos = new ObjectOutputStream(fos);
+            oos.writeInt(cantidadObjectos);            
+            //oos.close();
+
+            oosT = new ObjectOutputStream(fos) {
+                @Override
+                protected void writeStreamHeader() {
                 }
-                oos.writeObject(perros[i]);
+            };
+//            oos.writeObject(perros[0]);                    
+//            oosT.writeObject(perros[1]);                    
+//            oosT.writeObject(perros[2]);                    
+//            
+            int i;
+            for (i = 0; i < perrosCount; i++) {
+                if(i == 0){
+                    oos.writeObject(perros[i]);                    
+                }else{                    
+                    oosT.writeObject(perros[i]);
+                }
             }
 
-            for (int e = 0; i < perros.length; e++) {
-                if (i == 0 && e == 0) {
-                    oos = new ObjectOutputStream(new FileOutputStream(fichero, true)) {
-                        @Override
-                        protected void writeStreamHeader() {
-                        }
-                    };
-                } else {
-                    oos = new ObjectOutputStream(new FileOutputStream(fichero));
+            //añadir gatos
+            for (int e = 0; e < gatosCount; e++) {
+                if(i == 0 && e == 0){
+                    oos.writeObject(gatos[e]);                                
+                }else{                    
+                    oosT.writeObject(gatos[e]);            
                 }
-                oos.writeObject(perros[e]);
             }
+            
+            oos.close();
+            oosT.close();
         } catch (FileNotFoundException e) {
             JOptionPane.showMessageDialog(null, "errorcillo al leer el fichero \n" + e.toString());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "errorcillo " + e.toString());
         } finally {
-            try {
-                oos.close();
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "errorcillo " + e.toString());
-            }
+//            try {
+//            } catch (Exception e) {
+//                JOptionPane.showMessageDialog(null, "errorcillo " + e.toString());
+//            }
         }
 
     }
 
     public static void leerAnimalesDisco(String rutaFichero) {
         File fichero = new File(rutaFichero);
+        int cantidadObjectos;
+        int contadorPerros = 0;
+        int contadorGatos = 0;
+
         if (fichero.exists()) {
             FileInputStream contenido = null;
             try {
                 contenido = new FileInputStream(fichero);
                 ObjectInputStream ois = new ObjectInputStream(contenido);
-                Animal[] animales = new Animal[contenido.available()];
-                int longitud = contenido.available();
-                int contadorPerros = 0;
-                int contadorGatos = 0;
-                for(int i = 0; i < longitud; i++){                    
-                    animales[i] = (Animal) ois.readObject();
-                    if(animales[i] instanceof Perro){
-                      contadorPerros++;
-                    }else if(animales[i] instanceof Gato){
+                //cantidadObjectos = ((Integer) ois.readObject()).intValue();
+                cantidadObjectos = ois.readInt();
+
+                Animal[] animales = new Animal[cantidadObjectos];
+
+                for (int i = 0; i < cantidadObjectos && (contenido.available() > 0); i++) {
+                    //  System.out.println(ois.readObject().toString());                    
+                    Object entrada = ois.readObject();
+                    animales[i] = (Animal) entrada;
+                    // System.out.println(ejemplo.toString());
+                    if (animales[i] instanceof Perro) {
+                        contadorPerros++;
+                    } else if (animales[i] instanceof Gato) {
                         contadorGatos++;
                     }
                 }
+
                 Perro[] listaPerros = new Perro[contadorPerros];
                 Gato[] listaGatos = new Gato[contadorGatos];
-                for(Animal animal: animales){
-                    
-                    if(animal instanceof Perro){
+                perrosCount = contadorPerros;
+                gatosCount = contadorGatos;
+
+                for (Animal animal : animales) {
+                    if (animal instanceof Perro) {
                         listaPerros[--contadorPerros] = (Perro) animal;
-                    }else if(animal instanceof Gato){
-                        listaGatos[--contadorGatos] = (Gato) animal;                                                
+                    } else if (animal instanceof Gato) {
+                        listaGatos[--contadorGatos] = (Gato) animal;
                     }
                 }
                 setPerros(listaPerros);
-                setGatos(listaGatos);                
-                
-                
+                setGatos(listaGatos);
+
             } catch (FileNotFoundException e) {
                 JOptionPane.showMessageDialog(null, "errorcillo al leer el fichero \n" + e.toString());
             } catch (Exception e) {
@@ -154,6 +175,20 @@ public class OperacionesAnimales {
         } else {
             JOptionPane.showMessageDialog(null, "El archivo " + rutaFichero + " NO existe ");
         }
+
     }
 
+    public static String listar() {
+        StringBuilder resultado = new StringBuilder();
+        //Arrays.asList(perros).stream(i -> resultado.append(cosa.toString
+        for (int i = 0; i < perrosCount; i++) {
+            resultado.append(perros[i].toString() + "\n");
+        }
+        for (int i = 0; i < gatosCount; i++) {
+            resultado.append(gatos[i].toString() + "\n");
+        }
+//        Arrays.stream(perros).forEach(perro -> resultado.append(perro.toString()));
+//        Arrays.stream(gatos).forEach(gato -> resultado.append(gato.toString()));
+        return resultado.toString();
+    }
 }
