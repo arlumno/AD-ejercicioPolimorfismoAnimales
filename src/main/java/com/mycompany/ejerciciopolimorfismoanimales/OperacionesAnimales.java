@@ -66,82 +66,62 @@ public class OperacionesAnimales {
     public static void guardarAnimalesADisco(String rutaFichero) {
         File fichero = new File(rutaFichero);
         int cantidadObjectos = perrosCount + gatosCount;
-        ObjectOutputStream oos;
-        ObjectOutputStream oosT;
-        boolean cabeceraObjetos = true;
+        ObjectOutputStream oos = null;
+        ObjectOutputStream oosT = null;
+        int iP = 0;
+        int iG = 0;
+        
         try {
             //añadir cantidad objectos
             //FileOutputStream fos = new FileOutputStream(fichero);
-            oos = new ObjectOutputStream( new FileOutputStream(fichero));
-            oos.writeInt(cantidadObjectos);            
+            oos = new ObjectOutputStream(new FileOutputStream(fichero));
+            oos.writeInt(cantidadObjectos);
 
-            //oos.writeObject(perros[0]);                    
-//            oosT.writeObject(perros[1]);                    
-//            oosT.flush();
-//            oosT.writeObject(perros[2]);                    
-//            oosT.flush();
-//            
-//            oosT.writeObject(gatos[0]);                    
-//            oosT.flush();
-//            oosT.writeObject(gatos[1]);                    
-//            oosT.flush();
-//            oosT.writeObject(gatos[2]);           
-//            oosT.flush();
-//            
-//            oos.close();
-//            oosT.close();
-//           
-            int i;
-            for (i = 0; i < perrosCount; i++) {
-                if(i == 0){
-                    oos.writeObject(perros[i]);                    
-                }else{                    
-                    oosT = new ObjectOutputStream( new FileOutputStream(fichero,true)) {
-                        @Override
-                        protected void writeStreamHeader() {
-                            try{
-                                reset();                        
-                            }catch(Exception e){
-                                System.out.println(e.toString());
-                            }
+            //cabecera
+            if (perrosCount > 0) {
+                oos.writeObject(perros[iP]);
+                iP++;
+            } else if (gatosCount > 0) {
+                oos.writeObject(gatos[iG]);
+                iG++;
+            }
 
-                        }
-                    };
-                    oosT.writeObject(perros[i]);
+            //sin cabecera
+            oosT = new ObjectOutputStream(new FileOutputStream(fichero, true)) {
+                @Override
+                protected void writeStreamHeader() {
+                    try {
+                        reset();
+                    } catch (Exception e) {
+                        System.out.println(e.toString());
+                    }
                 }
+            };
+            
+            //añadir perros
+            while (iP < perrosCount) {
+                oosT.writeObject(perros[iP]);
+                iP++;
             }
 
             //añadir gatos
-            for (int e = 0; e < gatosCount; e++) {
-                if(i == 0 && e == 0){
-                    oos.writeObject(gatos[e]);                                
-                }else{  
-                    oosT = new ObjectOutputStream( new FileOutputStream(fichero,true)) {
-                        @Override
-                        protected void writeStreamHeader() {
-                            try{
-                                reset();                        
-                            }catch(Exception e){
-                                System.out.println(e.toString());
-                            }
-
-                        }
-                    };
-                    oosT.writeObject(gatos[e]);            
-                }
+            while (iG < gatosCount) {
+                oosT.writeObject(gatos[iG]);
+                iG++;
             }
+
             
-            oos.close();
-//            oosT.close();
         } catch (FileNotFoundException e) {
             JOptionPane.showMessageDialog(null, "Error al leer el fichero en guardarAnimalesADisco()\n" + e.toString());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error en guardarAnimalesADisco():\n" + e.toString());
         } finally {
-//            try {
-//            } catch (Exception e) {
-//                JOptionPane.showMessageDialog(null, "errorcillo " + e.toString());
-//            }
+            try {
+                oos.close();
+                oosT.close();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "errorcillo " + e.toString());
+            }
         }
 
     }
@@ -211,7 +191,7 @@ public class OperacionesAnimales {
     public static String listar() {
         StringBuilder resultado = new StringBuilder();
         //Arrays.asList(perros).stream(i -> resultado.append(cosa.toString
-        if(perrosCount == 0 && gatosCount == 0){
+        if (perrosCount == 0 && gatosCount == 0) {
             resultado.append("--Lista vacia--");
         }
         for (int i = 0; i < perrosCount; i++) {
@@ -224,7 +204,8 @@ public class OperacionesAnimales {
 //        Arrays.stream(gatos).forEach(gato -> resultado.append(gato.toString()));
         return resultado.toString();
     }
-    public static void vaciarListas(){
+
+    public static void vaciarListas() {
         perrosCount = 0;
         gatosCount = 0;
         perros = new Perro[0];
